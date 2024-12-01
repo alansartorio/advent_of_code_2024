@@ -1,0 +1,28 @@
+[package]
+name = "advent_of_code_2024"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+aoc-runner = "*"
+aoc-runner-derive = "*"
+bitflags = "1.3.2"
+cgmath = "0.18.0"
+chumsky = "0.8.0"
+divisors = "0.2.1"
+enum-map = "2.4.2"
+image = "0.24.7"
+indicatif = { version = "0.17.7", features = ["rayon"] }
+itertools = "*"
+memoize = "0.3.3"
+ndarray = "0.15.6"
+num = "0.4.0"
+num-derive = "0.4.1"
+num-traits = "0.2.17"
+pathfinding = "4.0.1"
+petgraph = "0.6.2"
+primes = "0.3.0"
+rayon = "1.6.1"
+
