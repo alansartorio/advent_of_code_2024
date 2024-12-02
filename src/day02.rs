@@ -53,7 +53,8 @@ pub fn solve_part1(input: &Input) -> usize {
         .count()
 }
 
-fn are_safe_deltas_lossy(deltas: Vec<i64>) -> bool {
+#[allow(unused)]
+fn are_safe_deltas_lossy_slow(deltas: Vec<i64>) -> bool {
     let negative = deltas.iter().map(Neg::neg).collect_vec();
 
     [deltas, negative].into_iter().any(|deltas| {
@@ -75,12 +76,35 @@ fn are_safe_deltas_lossy(deltas: Vec<i64>) -> bool {
     })
 }
 
+fn are_safe_deltas_lossy_fast(deltas: Vec<i64>) -> bool {
+    let negative = deltas.iter().map(Neg::neg).collect_vec();
+
+    [deltas, negative].into_iter().any(|deltas| {
+        for (i, delta) in deltas.iter().enumerate() {
+            if !is_safe_delta(delta) {
+                let combine_previous = if i == 0 {
+                    are_safe_deltas(&deltas[i + 1..])
+                } else {
+                    is_safe_delta(&(deltas[i - 1] + delta)) && are_safe_deltas(&deltas[i + 1..])
+                };
+                let combine_next = if i == deltas.len() - 1 {
+                    true
+                } else {
+                    is_safe_delta(&(deltas[i + 1] + delta)) && are_safe_deltas(&deltas[i + 2..])
+                };
+                return combine_previous || combine_next;
+            }
+        }
+        true
+    })
+}
+
 #[aoc(day2, part2)]
 pub fn solve_part2(input: &Input) -> usize {
     input
         .iter()
         .map(|line| compute_deltas(line).collect_vec())
-        .map(are_safe_deltas_lossy)
+        .map(are_safe_deltas_lossy_fast)
         .filter(|v| *v)
         .count()
 }
@@ -105,8 +129,11 @@ mod tests {
 
     #[test]
     fn test_part2_b() {
-        assert!(are_safe_deltas_lossy(
-            compute_deltas(&[1, 2, 3, 4, 5]).collect_vec()
-        ));
+        let vec = compute_deltas(&[22, 18, 20, 18, 17, 16]).collect_vec();
+        dbg!(&vec);
+        assert_eq!(
+            are_safe_deltas_lossy_slow(vec.clone()),
+            are_safe_deltas_lossy_fast(vec)
+        );
     }
 }
