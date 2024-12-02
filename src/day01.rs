@@ -1,8 +1,7 @@
 use chumsky::prelude::*;
 use itertools::Itertools;
-use ndarray::Array2;
 
-use crate::utils::{array_from_vector, parsers::number};
+use crate::utils::parsers::number;
 
 type Input = Vec<(u32, u32)>;
 
