@@ -2,7 +2,7 @@ use std::collections::{hash_set, HashSet};
 
 use cgmath::{vec2, Vector2};
 use itertools::{Itertools, MinMaxResult};
-use ndarray::{Array2, ArrayBase, Data, Ix2};
+use ndarray::{Array2, ArrayBase, Axis, Data, Ix2};
 
 use super::ToIndex;
 
@@ -61,5 +61,46 @@ impl GenerateBooleanMap for HashSet<Vector2<i64>> {
 
     fn iter(&self) -> Self::Iter<'_> {
         self.iter()
+    }
+}
+
+pub fn move_elements<T>(arr: &mut Array2<T>, dir: Vector2<i8>)
+where
+    T: Clone + Copy + num_traits::Zero,
+{
+    for axis in [0, 1] {
+        let roll = match axis {
+            0 => dir.y,
+            1 => dir.x,
+            _ => unreachable!(),
+        };
+        let size = arr.shape()[axis];
+        let cross_axis = 1 - axis;
+
+        match roll.cmp(&0) {
+            std::cmp::Ordering::Greater => {
+                let dir_abs = roll as usize;
+                for mut row in arr.axis_iter_mut(Axis(cross_axis)) {
+                    for x in (dir_abs..size).rev() {
+                        row[x] = row[x - dir_abs];
+                    }
+                    for x in 0..dir_abs {
+                        row[x] = T::zero();
+                    }
+                }
+            }
+            std::cmp::Ordering::Less => {
+                let dir_abs = (-roll) as usize;
+                for mut row in arr.axis_iter_mut(Axis(cross_axis)) {
+                    for x in 0..size - dir_abs {
+                        row[x] = row[x + dir_abs];
+                    }
+                    for x in size - dir_abs..size {
+                        row[x] = T::zero();
+                    }
+                }
+            }
+            std::cmp::Ordering::Equal => {}
+        }
     }
 }
